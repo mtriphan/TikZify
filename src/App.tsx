@@ -19,7 +19,11 @@ export default function App() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    processFile(file);
+  };
+
+  const processFile = (file: File | undefined | null) => {
+    if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = (reader.result as string).split(',')[1];
@@ -29,7 +33,26 @@ export default function App() {
         setError(null);
       };
       reader.readAsDataURL(file);
+    } else if (file) {
+      setError('Vui lòng chọn một tệp hình ảnh hợp lệ.');
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const blob = items[i].getAsFile();
+        processFile(blob);
+        break;
+      }
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    processFile(file);
   };
 
   const handleConvert = async () => {
@@ -76,7 +99,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-6 py-8" onPaste={handlePaste}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column: Upload and Preview */}
           <section className="space-y-6">
@@ -88,6 +111,8 @@ export default function App() {
               
               <div 
                 onClick={triggerUpload}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
                 className={`relative aspect-square rounded-xl border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden p-2
                   ${image ? 'border-transparent bg-slate-100' : 'border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/30'}`}
               >
@@ -113,7 +138,7 @@ export default function App() {
                     <div className="mx-auto w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-4 transition-transform hover:scale-110">
                       <Upload size={32} />
                     </div>
-                    <p className="text-slate-600 font-medium whitespace-nowrap">Kéo thả hoặc nhấp để tải ảnh lên</p>
+                    <p className="text-slate-600 font-medium whitespace-nowrap">Kéo thả, dán (Ctrl+V) hoặc nhấp để tải ảnh</p>
                     <p className="text-slate-400 text-sm mt-1">Hỗ trợ PNG, JPG, GIF</p>
                   </div>
                 )}
