@@ -1,0 +1,6 @@
+{
+  "name": "TikZify",
+  "description": "Ứng dụng AI giúp chuyển đổi hình ảnh, bản vẽ tay thành mã LaTeX TikZ một cách chính xác.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
